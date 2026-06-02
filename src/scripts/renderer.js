@@ -4,7 +4,114 @@ const toolbar = document.getElementById('float-toolbar')
 const fileInput = document.getElementById('image-file-input')
 
 let currentFile = null
+let isModified = false
 let hideToolbarTimer = null
+
+/* ── Turndown 设置 ── */
+
+const turndownService = new TurndownService({
+  headingStyle: 'atx',
+  hr: '---',
+  bulletListMarker: '-',
+  codeBlockStyle: 'fenced',
+  emDelimiter: '*',
+  strongDelimiter: '**'
+})
+
+/* ── 文件名显示 ── */
+
+function updateFilename() {
+  if (!currentFile) {
+    filenameEl.textContent = '未命名文档' + (isModified ? ' ●' : '')
+    return
+  }
+  const name = currentFile.split(/[/\\]/).pop()
+  filenameEl.textContent = name + (isModified ? ' ●' : '')
+}
+
+/* ── 编辑器内容 ↔ Markdown ── */
+
+function getMarkdown() {
+  return turndownService.turndown(editor.innerHTML)
+}
+
+function setContent(markdown) {
+  const html = marked.parse(markdown)
+  editor.innerHTML = html
+}
+
+/* ── 文件操作 ── */
+
+async function newFile() {
+  if (isModified) {
+    const ok = await window.electronAPI?.showConfirm?.()
+  }
+  editor.innerHTML = '<p><br></p>'
+  currentFile = null
+  isModified = false
+  updateFilename()
+}
+
+async function openFile() {
+  const result = await window.electronAPI?.openFile()
+  if (!result) return
+
+  currentFile = result.filepath
+  setContent(result.content)
+  isModified = false
+  updateFilename()
+}
+
+async function saveFile() {
+  const markdown = getMarkdown()
+  const filepath = await window.electronAPI?.saveFile(markdown, currentFile)
+  if (!filepath) return false
+
+  currentFile = filepath
+  isModified = false
+  updateFilename()
+  return true
+}
+
+async function saveFileAs() {
+  const markdown = getMarkdown()
+  const filepath = await window.electronAPI?.saveFileAs(markdown)
+  if (!filepath) return false
+
+  currentFile = filepath
+  isModified = false
+  updateFilename()
+  return true
+}
+
+/* ── 编辑状态跟踪 ── */
+
+editor.addEventListener('input', () => {
+  if (!isModified) {
+    isModified = true
+    updateFilename()
+  }
+})
+
+/* ── 键盘快捷键 ── */
+
+document.addEventListener('keydown', async (e) => {
+  const isCtrl = e.ctrlKey || e.metaKey
+
+  if (isCtrl && e.key === 'n') {
+    e.preventDefault()
+    await newFile()
+  } else if (isCtrl && e.key === 'o') {
+    e.preventDefault()
+    await openFile()
+  } else if (isCtrl && e.key === 's' && e.shiftKey) {
+    e.preventDefault()
+    await saveFileAs()
+  } else if (isCtrl && e.key === 's') {
+    e.preventDefault()
+    await saveFile()
+  }
+})
 
 /* ── 浮动工具栏：显示 / 隐藏 ── */
 
@@ -136,16 +243,12 @@ async function handleImageFile(file) {
   reader.readAsDataURL(file)
 }
 
-/* ── 文件选择对话框 ── */
-
 fileInput.addEventListener('change', () => {
   for (const file of fileInput.files) {
     handleImageFile(file)
   }
   fileInput.value = ''
 })
-
-/* ── 拖拽图片 ── */
 
 editor.addEventListener('dragover', (e) => {
   e.preventDefault()
@@ -161,8 +264,6 @@ editor.addEventListener('drop', (e) => {
   }
 })
 
-/* ── 粘贴图片 ── */
-
 editor.addEventListener('paste', (e) => {
   const items = e.clipboardData?.items
   if (!items) return
@@ -176,8 +277,6 @@ editor.addEventListener('paste', (e) => {
     }
   }
 })
-
-/* ── 键盘快捷键 ── */
 
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -195,3 +294,4 @@ editor.addEventListener('keydown', (e) => {
 /* ── 初始内容 ── */
 
 editor.innerHTML = '<p>欢迎使用 FLOWTEXT — 开始书写...</p>'
+updateFilename()

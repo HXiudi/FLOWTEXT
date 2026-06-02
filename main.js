@@ -57,6 +57,67 @@ ipcMain.handle('open-image-dialog', async () => {
   return result.filePaths
 })
 
+/* ── IPC: 新建文件 ── */
+
+ipcMain.handle('file-new', () => {
+  return { content: '', filepath: null }
+})
+
+/* ── IPC: 打开文件 ── */
+
+ipcMain.handle('file-open', async () => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (!win) return null
+
+  const result = await dialog.showOpenDialog(win, {
+    properties: ['openFile'],
+    filters: [{ name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'txt'] }]
+  })
+
+  if (result.canceled) return null
+
+  const filepath = result.filePaths[0]
+  const content = fs.readFileSync(filepath, 'utf-8')
+  return { content, filepath }
+})
+
+/* ── IPC: 保存文件 ── */
+
+ipcMain.handle('file-save', async (_event, content, filepath) => {
+  if (!filepath) {
+    const win = BrowserWindow.getFocusedWindow()
+    if (!win) return null
+
+    const result = await dialog.showSaveDialog(win, {
+      filters: [{ name: 'Markdown', extensions: ['md'] }],
+      defaultPath: '未命名文档.md'
+    })
+
+    if (result.canceled) return null
+    filepath = result.filePath
+  }
+
+  fs.writeFileSync(filepath, content, 'utf-8')
+  return filepath
+})
+
+/* ── IPC: 另存为 ── */
+
+ipcMain.handle('file-save-as', async (_event, content) => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (!win) return null
+
+  const result = await dialog.showSaveDialog(win, {
+    filters: [{ name: 'Markdown', extensions: ['md'] }],
+    defaultPath: '未命名文档.md'
+  })
+
+  if (result.canceled) return null
+
+  fs.writeFileSync(result.filePath, content, 'utf-8')
+  return result.filePath
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
