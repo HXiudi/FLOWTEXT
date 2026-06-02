@@ -1,15 +1,45 @@
 {
   "name": "flowtext",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A Typora-like Markdown editor with visual formatting toolbar, Apple-style design",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
   },
   "author": "FLOWTEXT",
   "license": "MIT",
+  "build": {
+    "appId": "com.flowtext.app",
+    "productName": "FLOWTEXT",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
   "devDependencies": {
-    "electron": "^33.4.11"
+    "electron": "^33.4.11",
+    "electron-builder": "^26.8.1"
   },
   "dependencies": {
     "highlight.js": "^11.11.1",
