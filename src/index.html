@@ -9,10 +9,19 @@
 </head>
 <body>
   <div id="app">
-    <main id="editor" contenteditable="true" spellcheck="true">
-      <p>欢迎使用 FLOWTEXT — 开始书写...</p>
-    </main>
+    <div id="titlebar">
+      <div id="titlebar-dots">
+        <span class="dot dot-close"></span>
+        <span class="dot dot-minimize"></span>
+        <span class="dot dot-maximize"></span>
+      </div>
+      <span id="filename">未命名文档</span>
+    </div>
+    <div id="editor-wrapper">
+      <div id="editor" contenteditable="true" spellcheck="true"></div>
+    </div>
   </div>
+  <script src="lib/marked.js"></script>
   <script src="scripts/renderer.js"></script>
 </body>
 </html>
