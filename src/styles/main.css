@@ -172,3 +172,93 @@ body {
   color: #C7C7CC;
   pointer-events: none;
 }
+
+/* ── 浮动工具栏 ── */
+
+#float-toolbar {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(210,210,215,0.6);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  z-index: 100;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translateY(0);
+}
+
+#float-toolbar.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+}
+
+.tb-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #1D1D1F;
+  transition: background 0.12s ease;
+}
+
+.tb-btn:hover { background: #E8E8ED; }
+.tb-btn:active { background: #D1D1D6; }
+
+.tb-sep {
+  width: 1px;
+  height: 20px;
+  background: #D2D2D7;
+  margin: 0 4px;
+}
+
+.tb-color {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1D1D1F;
+  transition: background 0.12s ease;
+}
+
+.tb-color:hover { background: #E8E8ED; }
+
+.tb-color input[type="color"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.tb-select {
+  height: 28px;
+  border: 1px solid #D2D2D7;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 12px;
+  color: #1D1D1F;
+  padding: 0 6px;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+}
+
+.tb-select:hover { background: #F5F5F7; }

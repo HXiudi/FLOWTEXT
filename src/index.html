@@ -17,6 +17,42 @@
       </div>
       <span id="filename">未命名文档</span>
     </div>
+
+    <!-- 浮动工具栏 -->
+    <div id="float-toolbar" class="hidden">
+      <button class="tb-btn" data-cmd="bold" title="粗体"><strong>B</strong></button>
+      <button class="tb-btn" data-cmd="italic" title="斜体"><em>I</em></button>
+      <button class="tb-btn" data-cmd="underline" title="下划线"><u>U</u></button>
+      <button class="tb-btn" data-cmd="strikeThrough" title="删除线"><s>S</s></button>
+      <span class="tb-sep"></span>
+      <label class="tb-color" title="字体颜色">
+        <span>A</span>
+        <input type="color" data-cmd="foreColor" value="#1D1D1F">
+      </label>
+      <label class="tb-color" title="高亮色">
+        <span style="background:#FFCC00">A</span>
+        <input type="color" data-cmd="hiliteColor" value="#FFCC00">
+      </label>
+      <span class="tb-sep"></span>
+      <select class="tb-select" data-cmd="formatBlock">
+        <option value="">段落</option>
+        <option value="h1">H1</option>
+        <option value="h2">H2</option>
+        <option value="h3">H3</option>
+        <option value="h4">H4</option>
+        <option value="h5">H5</option>
+        <option value="h6">H6</option>
+      </select>
+      <span class="tb-sep"></span>
+      <select class="tb-select" data-cmd="fontSize">
+        <option value="3">正文</option>
+        <option value="4">大</option>
+        <option value="5">更大</option>
+        <option value="1">小</option>
+        <option value="2">更小</option>
+      </select>
+    </div>
+
     <div id="editor-wrapper">
       <div id="editor" contenteditable="true" spellcheck="true"></div>
     </div>
