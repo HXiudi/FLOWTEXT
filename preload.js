@@ -11,5 +11,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   newFile: () => ipcRenderer.invoke('file-new'),
   openFile: () => ipcRenderer.invoke('file-open'),
   saveFile: (content, filepath) => ipcRenderer.invoke('file-save', content, filepath),
-  saveFileAs: (content) => ipcRenderer.invoke('file-save-as', content)
+  saveFileAs: (content) => ipcRenderer.invoke('file-save-as', content),
+
+  // Export
+  exportHtml: (content) => ipcRenderer.invoke('export-html', content),
+  exportPdf: (content) => ipcRenderer.invoke('export-pdf', content)
 })

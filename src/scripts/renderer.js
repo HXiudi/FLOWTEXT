@@ -93,6 +93,53 @@ editor.addEventListener('input', () => {
   }
 })
 
+/* ── 导出 ── */
+
+const EXPORT_CSS = `
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #1D1D1F; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; max-width: 720px; margin: 0 auto; padding: 40px 32px; }
+h1 { font-size: 32px; font-weight: 700; margin: 24px 0 8px; }
+h2 { font-size: 24px; font-weight: 700; margin: 20px 0 6px; }
+h3 { font-size: 20px; font-weight: 600; margin: 18px 0 4px; }
+h4 { font-size: 18px; font-weight: 600; margin: 16px 0 4px; }
+h5 { font-size: 16px; font-weight: 600; margin: 14px 0 4px; }
+h6 { font-size: 14px; font-weight: 600; margin: 12px 0 4px; color: #86868B; }
+p { margin: 0 0 12px; }
+strong { font-weight: 700; }
+em { font-style: italic; }
+s { text-decoration: line-through; }
+blockquote { border-left: 4px solid #007AFF; padding: 8px 16px; margin: 12px 0; background: #F5F5F7; color: #515154; }
+code { font-family: "SF Mono", Consolas, monospace; background: #F0F0F2; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre { background: #F5F5F7; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; }
+pre code { background: none; padding: 0; }
+ul, ol { padding-left: 24px; margin: 8px 0; }
+li { margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+th, td { border: 1px solid #D2D2D7; padding: 8px 12px; text-align: left; }
+th { background: #F5F5F7; font-weight: 600; }
+hr { border: none; border-top: 1px solid #D2D2D7; margin: 24px 0; }
+a { color: #007AFF; text-decoration: none; }
+img { max-width: 100%; border-radius: 8px; margin: 12px 0; }
+`
+
+function buildExportHtml() {
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>${currentFile ? currentFile.split(/[/\\]/).pop() : 'FLOWTEXT'} 导出</title>
+<style>${EXPORT_CSS}</style></head>
+<body>${editor.innerHTML}</body>
+</html>`
+}
+
+async function exportHtml() {
+  const html = buildExportHtml()
+  await window.electronAPI?.exportHtml(html)
+}
+
+async function exportPdf() {
+  const html = buildExportHtml()
+  await window.electronAPI?.exportPdf(html)
+}
+
 /* ── 键盘快捷键 ── */
 
 document.addEventListener('keydown', async (e) => {
@@ -110,6 +157,12 @@ document.addEventListener('keydown', async (e) => {
   } else if (isCtrl && e.key === 's') {
     e.preventDefault()
     await saveFile()
+  } else if (isCtrl && e.key === 'e') {
+    e.preventDefault()
+    await exportHtml()
+  } else if (isCtrl && e.key === 'p') {
+    e.preventDefault()
+    await exportPdf()
   }
 })
 

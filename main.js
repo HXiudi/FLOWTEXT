@@ -3,6 +3,7 @@ const path = require('path')
 const fs = require('fs')
 
 const ASSETS_DIR = path.join(__dirname, 'assets', 'images')
+const CSS_PATH = path.join(__dirname, 'src', 'styles', 'main.css')
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -116,6 +117,60 @@ ipcMain.handle('file-save-as', async (_event, content) => {
 
   fs.writeFileSync(result.filePath, content, 'utf-8')
   return result.filePath
+})
+
+/* ── IPC: 导出 HTML ── */
+
+ipcMain.handle('export-html', async (_event, htmlContent) => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (!win) return false
+
+  const result = await dialog.showSaveDialog(win, {
+    filters: [{ name: 'HTML', extensions: ['html'] }],
+    defaultPath: 'export.html'
+  })
+
+  if (result.canceled) return false
+
+  fs.writeFileSync(result.filePath, htmlContent, 'utf-8')
+  return true
+})
+
+/* ── IPC: 导出 PDF ── */
+
+ipcMain.handle('export-pdf', async (_event, htmlContent) => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (!win) return false
+
+  const result = await dialog.showSaveDialog(win, {
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+    defaultPath: 'export.pdf'
+  })
+
+  if (result.canceled) return false
+
+  const pdfWin = new BrowserWindow({
+    width: 800,
+    height: 600,
+    show: false,
+    webPreferences: { contextIsolation: true, nodeIntegration: false }
+  })
+
+  pdfWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`)
+
+  await new Promise(r => pdfWin.webContents.on('did-finish-load', r))
+  await new Promise(r => setTimeout(r, 500))
+
+  const pdfData = await pdfWin.webContents.printToPDF({
+    printBackground: true,
+    margin: { top: 20, bottom: 20, left: 20, right: 20 },
+    pageSize: 'A4'
+  })
+
+  pdfWin.close()
+
+  fs.writeFileSync(result.filePath, pdfData)
+  return true
 })
 
 app.whenReady().then(createWindow)
