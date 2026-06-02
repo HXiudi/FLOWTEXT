@@ -1,6 +1,7 @@
 const editor = document.getElementById('editor')
 const filenameEl = document.getElementById('filename')
 const toolbar = document.getElementById('float-toolbar')
+const fileInput = document.getElementById('image-file-input')
 
 let currentFile = null
 let hideToolbarTimer = null
@@ -20,8 +21,6 @@ function delayHideToolbar() {
   clearTimeout(hideToolbarTimer)
   hideToolbarTimer = setTimeout(hideToolbar, 200)
 }
-
-/* ── 工具栏定位 ── */
 
 function positionToolbar() {
   const sel = window.getSelection()
@@ -48,8 +47,6 @@ function positionToolbar() {
   showToolbar()
 }
 
-/* ── 选中文字时显示工具栏 ── */
-
 document.addEventListener('selectionchange', () => {
   if (document.activeElement !== editor) {
     hideToolbar()
@@ -57,8 +54,6 @@ document.addEventListener('selectionchange', () => {
   }
   positionToolbar()
 })
-
-/* ── 隐藏工具栏：点击外部 / 失焦 ── */
 
 editor.addEventListener('blur', (e) => {
   if (toolbar.contains(e.relatedTarget)) return
@@ -78,15 +73,18 @@ function execCmd(cmd, value = null) {
 
 toolbar.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-cmd]')
-  if (!btn) return
+  if (btn) {
+    const cmd = btn.dataset.cmd
+    const value = btn.dataset.value || undefined
+    if (cmd === 'formatBlock') return
+    execCmd(cmd, value)
+    positionToolbar()
+    return
+  }
 
-  const cmd = btn.dataset.cmd
-  const value = btn.dataset.value || undefined
-
-  if (cmd === 'formatBlock') return // handled by change event
-
-  execCmd(cmd, value)
-  positionToolbar()
+  if (e.target.closest('#btn-insert-image')) {
+    fileInput.click()
+  }
 })
 
 toolbar.addEventListener('change', (e) => {
@@ -98,14 +96,88 @@ toolbar.addEventListener('change', (e) => {
   } else if (target.dataset.cmd === 'fontSize') {
     execCmd('fontSize', target.value)
   } else if (target.dataset.cmd === 'formatBlock') {
-    if (target.value) {
-      execCmd('formatBlock', `<${target.value}>`)
-    }
+    if (target.value) execCmd('formatBlock', `<${target.value}>`)
   }
   positionToolbar()
 })
 
-/* ── 键盘快捷键支持 ── */
+/* ── 图片插入 ── */
+
+function insertImage(src) {
+  editor.focus()
+  const sel = window.getSelection()
+  if (sel.rangeCount) {
+    const range = sel.getRangeAt(0)
+    range.deleteContents()
+    const img = document.createElement('img')
+    img.src = src
+    img.alt = 'image'
+    img.draggable = false
+    range.insertNode(img)
+    range.setStartAfter(img)
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
+  } else {
+    editor.innerHTML += `<img src="${src}" alt="image">`
+  }
+}
+
+async function handleImageFile(file) {
+  const reader = new FileReader()
+  reader.onload = async (e) => {
+    let src = e.target.result
+    if (window.electronAPI?.saveImage) {
+      const filepath = await window.electronAPI.saveImage(src)
+      if (filepath) src = `file:///${filepath.replace(/\\/g, '/')}`
+    }
+    insertImage(src)
+  }
+  reader.readAsDataURL(file)
+}
+
+/* ── 文件选择对话框 ── */
+
+fileInput.addEventListener('change', () => {
+  for (const file of fileInput.files) {
+    handleImageFile(file)
+  }
+  fileInput.value = ''
+})
+
+/* ── 拖拽图片 ── */
+
+editor.addEventListener('dragover', (e) => {
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'copy'
+})
+
+editor.addEventListener('drop', (e) => {
+  e.preventDefault()
+  for (const file of e.dataTransfer.files) {
+    if (file.type.startsWith('image/')) {
+      handleImageFile(file)
+    }
+  }
+})
+
+/* ── 粘贴图片 ── */
+
+editor.addEventListener('paste', (e) => {
+  const items = e.clipboardData?.items
+  if (!items) return
+
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault()
+      const file = item.getAsFile()
+      if (file) handleImageFile(file)
+      return
+    }
+  }
+})
+
+/* ── 键盘快捷键 ── */
 
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {

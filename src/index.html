@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:;">
   <title>FLOWTEXT</title>
   <link rel="stylesheet" href="styles/main.css">
 </head>
@@ -51,7 +51,10 @@
         <option value="1">小</option>
         <option value="2">更小</option>
       </select>
+      <span class="tb-sep"></span>
+      <button class="tb-btn" id="btn-insert-image" title="插入图片">🖼</button>
     </div>
+    <input type="file" id="image-file-input" accept="image/*" multiple hidden>
 
     <div id="editor-wrapper">
       <div id="editor" contenteditable="true" spellcheck="true"></div>
