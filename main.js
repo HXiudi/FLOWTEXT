@@ -173,6 +173,21 @@ ipcMain.handle('export-pdf', async (_event, htmlContent) => {
   return true
 })
 
+/* ── IPC: 窗口控制 ── */
+
+ipcMain.on('window-minimize', (e) => {
+  BrowserWindow.fromWebContents(e.sender)?.minimize()
+})
+
+ipcMain.on('window-maximize', (e) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  if (win?.isMaximized()) win.unmaximize(); else win?.maximize()
+})
+
+ipcMain.on('window-close', (e) => {
+  BrowserWindow.fromWebContents(e.sender)?.close()
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {

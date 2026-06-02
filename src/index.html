@@ -11,14 +11,16 @@
   <div id="app">
     <div id="titlebar">
       <div id="titlebar-dots">
-        <span class="dot dot-close"></span>
-        <span class="dot dot-minimize"></span>
-        <span class="dot dot-maximize"></span>
+        <span class="dot dot-close" data-action="close" title="关闭"></span>
+        <span class="dot dot-minimize" data-action="minimize" title="最小化"></span>
+        <span class="dot dot-maximize" data-action="maximize" title="最大化"></span>
       </div>
       <span id="filename">未命名文档</span>
+      <div id="titlebar-actions">
+        <button id="btn-darkmode" title="切换主题">🌙</button>
+      </div>
     </div>
 
-    <!-- 浮动工具栏 -->
     <div id="float-toolbar" class="hidden">
       <button class="tb-btn" data-cmd="bold" title="粗体"><strong>B</strong></button>
       <button class="tb-btn" data-cmd="italic" title="斜体"><em>I</em></button>
@@ -58,6 +60,11 @@
 
     <div id="editor-wrapper">
       <div id="editor" contenteditable="true" spellcheck="true"></div>
+    </div>
+
+    <div id="statusbar">
+      <span id="status-words">0 字</span>
+      <span id="status-line">1 行</span>
     </div>
   </div>
   <script src="lib/marked.js"></script>

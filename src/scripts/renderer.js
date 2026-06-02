@@ -2,9 +2,12 @@ const editor = document.getElementById('editor')
 const filenameEl = document.getElementById('filename')
 const toolbar = document.getElementById('float-toolbar')
 const fileInput = document.getElementById('image-file-input')
+const statusWords = document.getElementById('status-words')
+const statusLine = document.getElementById('status-line')
 
 let currentFile = null
 let isModified = false
+let isDarkMode = false
 let hideToolbarTimer = null
 
 /* ── Turndown 设置 ── */
@@ -29,6 +32,16 @@ function updateFilename() {
   filenameEl.textContent = name + (isModified ? ' ●' : '')
 }
 
+/* ── 状态栏 ── */
+
+function updateStatusbar() {
+  const text = editor.innerText || ''
+  const wordCount = text.replace(/\s/g, '').length
+  const lineCount = (text.match(/\n/g) || []).length + 1
+  statusWords.textContent = `${wordCount} 字`
+  statusLine.textContent = `${lineCount} 行`
+}
+
 /* ── 编辑器内容 ↔ Markdown ── */
 
 function getMarkdown() {
@@ -43,13 +56,11 @@ function setContent(markdown) {
 /* ── 文件操作 ── */
 
 async function newFile() {
-  if (isModified) {
-    const ok = await window.electronAPI?.showConfirm?.()
-  }
   editor.innerHTML = '<p><br></p>'
   currentFile = null
   isModified = false
   updateFilename()
+  updateStatusbar()
 }
 
 async function openFile() {
@@ -60,6 +71,7 @@ async function openFile() {
   setContent(result.content)
   isModified = false
   updateFilename()
+  updateStatusbar()
 }
 
 async function saveFile() {
@@ -91,6 +103,7 @@ editor.addEventListener('input', () => {
     isModified = true
     updateFilename()
   }
+  updateStatusbar()
 })
 
 /* ── 导出 ── */
@@ -139,6 +152,25 @@ async function exportPdf() {
   const html = buildExportHtml()
   await window.electronAPI?.exportPdf(html)
 }
+
+/* ── 窗口控制 ── */
+
+document.getElementById('titlebar-dots').addEventListener('click', (e) => {
+  const dot = e.target.closest('.dot')
+  if (!dot) return
+  const action = dot.dataset.action
+  if (action === 'close') window.electronAPI?.windowClose()
+  else if (action === 'minimize') window.electronAPI?.windowMinimize()
+  else if (action === 'maximize') window.electronAPI?.windowMaximize()
+})
+
+/* ── 暗色模式 ── */
+
+document.getElementById('btn-darkmode').addEventListener('click', () => {
+  isDarkMode = !isDarkMode
+  document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light')
+  document.getElementById('btn-darkmode').textContent = isDarkMode ? '☀️' : '🌙'
+})
 
 /* ── 键盘快捷键 ── */
 
@@ -281,6 +313,7 @@ function insertImage(src) {
   } else {
     editor.innerHTML += `<img src="${src}" alt="image">`
   }
+  updateStatusbar()
 }
 
 async function handleImageFile(file) {
@@ -348,3 +381,4 @@ editor.addEventListener('keydown', (e) => {
 
 editor.innerHTML = '<p>欢迎使用 FLOWTEXT — 开始书写...</p>'
 updateFilename()
+updateStatusbar()

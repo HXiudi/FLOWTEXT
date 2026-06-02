@@ -3,6 +3,11 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
 
+  // Window controls
+  windowMinimize: () => ipcRenderer.send('window-minimize'),
+  windowMaximize: () => ipcRenderer.send('window-maximize'),
+  windowClose: () => ipcRenderer.send('window-close'),
+
   // Image
   saveImage: (dataUrl) => ipcRenderer.invoke('save-image', dataUrl),
   openImageDialog: () => ipcRenderer.invoke('open-image-dialog'),
