@@ -1,0 +1,14 @@
+{
+  "name": "flowtext",
+  "version": "0.1.0",
+  "description": "A Typora-like Markdown editor with visual formatting toolbar, Apple-style design",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "FLOWTEXT",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
