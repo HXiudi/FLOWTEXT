@@ -103,6 +103,10 @@ body {
   -webkit-app-region: no-drag;
 }
 
+#titlebar-dots.hidden {
+  display: none;
+}
+
 .dot {
   width: 12px;
   height: 12px;

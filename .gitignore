@@ -5,6 +5,7 @@ node_modules/
 out/
 dist/
 build/
+release/
 
 # OS files
 .DS_Store

@@ -3,22 +3,15 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
 
-  // Window controls
   windowMinimize: () => ipcRenderer.send('window-minimize'),
   windowMaximize: () => ipcRenderer.send('window-maximize'),
   windowClose: () => ipcRenderer.send('window-close'),
 
-  // Image
-  saveImage: (dataUrl) => ipcRenderer.invoke('save-image', dataUrl),
-  openImageDialog: () => ipcRenderer.invoke('open-image-dialog'),
-
-  // File operations
   newFile: () => ipcRenderer.invoke('file-new'),
   openFile: () => ipcRenderer.invoke('file-open'),
   saveFile: (content, filepath) => ipcRenderer.invoke('file-save', content, filepath),
   saveFileAs: (content) => ipcRenderer.invoke('file-save-as', content),
 
-  // Export
   exportHtml: (content) => ipcRenderer.invoke('export-html', content),
   exportPdf: (content) => ipcRenderer.invoke('export-pdf', content)
 })

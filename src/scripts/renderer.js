@@ -318,13 +318,8 @@ function insertImage(src) {
 
 async function handleImageFile(file) {
   const reader = new FileReader()
-  reader.onload = async (e) => {
-    let src = e.target.result
-    if (window.electronAPI?.saveImage) {
-      const filepath = await window.electronAPI.saveImage(src)
-      if (filepath) src = `file:///${filepath.replace(/\\/g, '/')}`
-    }
-    insertImage(src)
+  reader.onload = (e) => {
+    insertImage(e.target.result)
   }
   reader.readAsDataURL(file)
 }
@@ -376,6 +371,12 @@ editor.addEventListener('keydown', (e) => {
     }
   }
 })
+
+/* ── 平台检测 ── */
+
+if (window.electronAPI?.platform === 'win32') {
+  document.getElementById('titlebar-dots').classList.add('hidden')
+}
 
 /* ── 初始内容 ── */
 
